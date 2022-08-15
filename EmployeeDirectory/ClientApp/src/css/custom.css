@@ -1,0 +1,42 @@
+/* Provide sufficient contrast against white background */
+a {
+    color: #0366d6;
+}
+
+code {
+    color: #E01A76;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.paginationBttns {
+    width:50%;
+    height:40px;
+    padding-top:10px;
+    padding-left:0px;
+    list-style:none;
+    display:flex;
+    justify-content:left;
+}
+
+.paginationBttns a {
+    padding: 10px;
+    margin: 7px;
+    border-radius: 4px;
+    border: 1px solid #808080;
+    color: #808080;
+    cursor: pointer;
+}
+
+.paginationBttns a:hover {
+    color: white;
+    background-color: #808080;
+}
+.paginationActive a {
+    color: white;
+    background-color: #808080;
+}
