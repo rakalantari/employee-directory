@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useState, useMemo } from 'react';
+/* eslint-disable-next-line */
+import React, { useEffect, useState, useMemo } from 'react';
 import ReactPaginate from 'react-paginate';
 import { Link } from 'react-router-dom';
 //import { memoize } from "lodash";

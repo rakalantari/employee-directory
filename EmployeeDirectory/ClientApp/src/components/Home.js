@@ -14,7 +14,7 @@ export class Home extends Component {
                     <li>Bootstrap for layout and styling</li>
                 </ul>
                 <h3>Project description</h3>
-                <p>A new project to build an online directory for the company. There's an existing API that can feed you the data that can be accessed at this URL: <a href='https://reqres.in/' target='_blank'>https://reqres.in/</a></p>
+                <p>A new project to build an online directory for the company. There's an existing API that can feed you the data that can be accessed at this URL: <a href='https://reqres.in/' target='_blank' rel='noreferrer'>https://reqres.in/</a></p>
                 <p>The goal is to be able to fetch the data from the api and display a list view, with a link to display a more detailed page with the employee&#8217;s information. Because the company is large, we&#8217;ll need to be sure we can paginate the list results and also search by email address to find that one specific person.</p>
                 <p>This is a Greenfield exercise, and you&#8217;re in charge. Please choose your desired technology to make this happen. This does not have to be pretty, it is an exercise to learn how you would approach the problem, how you collaborate with our team members, how you accept feedback, and how you can explain the choices you&#8217;re making.</p>
                 <br />
