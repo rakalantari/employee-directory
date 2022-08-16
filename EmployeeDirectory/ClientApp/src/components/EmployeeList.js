@@ -1,97 +1,53 @@
 /* eslint-disable-next-line */
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from 'react-query';
 import ReactPaginate from 'react-paginate';
-import { Link } from 'react-router-dom';
-//import { memoize } from "lodash";
+import { Link, useLocation } from 'react-router-dom';
+import { fetchEmployeeList } from './Api';
 import EmailAddressFilter from './EmailAddressFilter';
 
-var cache = {};
-
-const fetchEmployeeList = async (pageNumber, pageSize) => {
-
-    if (cache[pageNumber] !== undefined)
-        return cache[pageNumber];
-
-    const response = await fetch(`https://localhost:44432/employee?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    const responseJson = await response.json();
-    cache[pageNumber] = responseJson;
-    return responseJson;
-}
-
 export function EmployeeList(props) {
-    const [loading, setLoading] = useState(true);
-    const [employeeList, setEmployeeList] = useState([]);
+    let employeeList = []
+    let pageNumber = 1
+    let pageCount = 0
     const [keyword, setKeyword] = useState('');
-    const [pageNumber, setPageNumber] = useState(1);
     const pageSize = 4
-    const [pageCount, setPageCount] = useState(0);
+    const location = useLocation();
 
-    // Comment: Tried to prevent api call for already visited pages using useMemo hook but it did not work as I expected.
-    // Why? This is why Object is used for implementing a local cache to avoid redundent api calls.
+    if (location.state !== null && location.state !== undefined) {
+        pageNumber = location.state.page;
+    }
 
-    //const response = useMemo(() => {
-    //    return fetchEmployeeList(pageNumber, pageSize)
-    //}, [pageNumber]);
+    const { isLoading, isError, error, data: empList, refetch } = useQuery(`page${pageNumber}`, () => fetchEmployeeList(pageNumber, pageSize), { refetchOnWindowFocus: false, keepPreviousData: true, staleTime: 300000 });
 
-    useEffect(() => {
-        let isSubscribed = true
-        populateEmployeeList()
-        return () => { isSubscribed = false }
+    if (isLoading) return <p><em>Loading...</em></p>
+    if (isError) return <h2>An error occured while retrieving employee data. Please try again! Error: {error.message}.</h2>
 
-        async function populateEmployeeList() {
-
-            const response = await fetchEmployeeList(pageNumber, pageSize);
-
-            if (isSubscribed) {
-                setEmployeeList(response.data);
-                setPageCount(response.total_pages);
-                setLoading(false);
-            }
-        }
-
-    }, [pageNumber])
-
-
+    employeeList = empList.data;
+    pageNumber = empList.page;
+    pageCount = empList.total_pages;
 
     const pageChange = ({ selected }) => {
-        setPageNumber(selected + 1);
-    };
+        pageNumber = selected + 1;
+        refetch();
 
-    let contents = loading ? <p><em>Loading...</em></p> : renderEmployeeView(employeeList);
+    };
 
     return (
         <div>
             <h1 id="tabelLabel" >Employee List</h1>
-            {contents}
+            {renderEmployeeView()}
         </div>
     )
 
-    function renderEmployeeView(employeeList) {
+    function renderEmployeeView() {
+
+        employeeList = filterByEmail(employeeList, keyword);
+
         return (
             <>
                 <EmailAddressFilter stateSetter={setKeyword} />
-                <table className='table table-striped' aria-labelledby="tabelLabel">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email Address</th>
-                            <th>More Info</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filterByEmail(employeeList, keyword).map(employee =>
-                            <tr key={employee.id}>
-                                <td>{employee.id}</td>
-                                <td>{employee.first_name}</td>
-                                <td>{employee.last_name}</td>
-                                <td>{employee.email}</td>
-                                <td><Link to="/employee-detail" state={{ emp: employee }}>More Info</Link></td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                {populateEmployeeTable(employeeList, pageNumber)}
                 <ReactPaginate
                     previousLabel={"Previous"}
                     nextLabel={"Next"}
@@ -102,6 +58,7 @@ export function EmployeeList(props) {
                     nextLinkClassName={"nextBttn"}
                     disabledClassName={"paginationDisabled"}
                     activeClassName={"paginationActive"}
+                /* forcePage={pageNumber}*/
                 />
             </>
         );
@@ -117,5 +74,46 @@ const filterByEmail = (employeeList, keyword) => {
 
     return employeeList.filter(employee => employee.email.toLowerCase().substr(0, employee.email.indexOf('@')).includes(keyword.toLowerCase()));
 }
+
+const populateEmployeeTable = (employeeList, pageNumber) => {
+
+    return (
+        <table className='table table-striped' aria-labelledby="tabelLabel">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email Address</th>
+                    <th>More Info</th>
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    employeeList.length > 0 ? (
+                        employeeList.map(employee =>
+                            <tr key={employee.id}>
+                                <td>{employee.id}</td>
+                                <td>{employee.first_name}</td>
+                                <td>{employee.last_name}</td>
+                                <td>{employee.email}</td>
+                                <td><Link to="/employee-detail" state={{ emp: employee, page: pageNumber }}>More Info</Link></td>
+                            </tr>
+
+                        )) : (
+                        <tr>
+                            <td>No employee found for search criteria</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    )
+                }
+            </tbody>
+        </table>
+    );
+}
+
 
 export default EmployeeList
