@@ -1,5 +1,5 @@
-﻿import React, { Component, useState } from 'react'
-import Avatar from "./Avatar"
+﻿import React, { useState } from 'react';
+import Avatar from "./Avatar";
 
 export default function UserInfo(props) {
 
@@ -9,7 +9,8 @@ export default function UserInfo(props) {
         <div>
             <h1>{user.first_name} {user.last_name}</h1>
             <Avatar user={user} />
-            <div>{user.email}</div>
+            <div>Email: {user.email}</div>
+            <div>User Id: {user.id}</div>
         </div>
     );
 }
