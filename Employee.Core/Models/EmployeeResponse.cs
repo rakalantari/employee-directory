@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace Employee.Core
 {
@@ -22,10 +17,10 @@ namespace Employee.Core
         public int TotalPages { get; set; }
 
         [JsonPropertyName("data")]
-        public Employee[] EmployeeData { get; set; }
+        public Employee[]? EmployeeData { get; set; }
 
         [JsonPropertyName("support")]
-        public Support Support { get; set; }
+        public Support? Support { get; set; }
     }
 
     public class Employee
@@ -34,24 +29,24 @@ namespace Employee.Core
         public int EmployeeId { get; set; }
 
         [JsonPropertyName("email")]
-        public string EmialAddress { get; set; }
+        public string? EmialAddress { get; set; }
 
         [JsonPropertyName("first_name")]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [JsonPropertyName("last_name")]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
         [JsonPropertyName("avatar")]
-        public string Avatar { get; set; }
+        public string? Avatar { get; set; }
     }
 
     public class Support
     {
         [JsonPropertyName("url")]
-        public string Url { get; set; }
+        public string? Url { get; set; }
 
         [JsonPropertyName("text")]
-        public string Text { get; set; }
+        public string? Text { get; set; }
     }
 }
