@@ -8,9 +8,10 @@ code {
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
+    color: white;
+    background-color: #0366d6;
     border-color: #1861ac;
+    font-weight:700;
 }
 
 .paginationBttns {

@@ -2,40 +2,36 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
 import ReactPaginate from 'react-paginate';
-import { Link, useLocation } from 'react-router-dom';
-import { fetchEmployeeList } from './Api';
+import { useLocation } from 'react-router-dom';
+import * as api from './Api';
 import EmailAddressFilter from './EmailAddressFilter';
+import EmployeeTable from './EmployeeTable';
+
 
 export function EmployeeList(props) {
-    let employeeList = []
-    let pageNumber = 1
-    let pageCount = 0
+    const [pageNumber, setPageNumber] = useState(1)
     const [keyword, setKeyword] = useState('');
+    let employeeList = []
+    let pageCount = 0
     const pageSize = 4
     const location = useLocation();
 
-    if (location.state !== null && location.state !== undefined) {
-        pageNumber = location.state.page;
-    }
+    setPageNumberIfReturned(location, setPageNumber);
 
-    const { isLoading, isError, error, data: empList, refetch } = useQuery(`page${pageNumber}`, () => fetchEmployeeList(pageNumber, pageSize), { refetchOnWindowFocus: false, keepPreviousData: true, staleTime: 300000 });
+    const { isLoading, isError, error, data: empList } = useQuery(['employeeList', pageNumber], () => api.fetchEmployeeList(pageNumber, pageSize), { refetchOnWindowFocus: false, keepPreviousData: true, staleTime: 300000, retry: true, enabled: Boolean(pageNumber) });
 
     if (isLoading) return <p><em>Loading...</em></p>
     if (isError) return <h2>An error occured while retrieving employee data. Please try again! Error: {error.message}.</h2>
 
     employeeList = empList.data;
-    pageNumber = empList.page;
     pageCount = empList.total_pages;
 
     const pageChange = ({ selected }) => {
-        pageNumber = selected + 1;
-        refetch();
-
+        setPageNumber(prev => selected + 1);        
     };
 
     return (
         <div>
-            <h1 id="tabelLabel" >Employee List</h1>
             {renderEmployeeView()}
         </div>
     )
@@ -46,8 +42,9 @@ export function EmployeeList(props) {
 
         return (
             <>
+                <h1 id="tabelLabel" >Employee List</h1>
                 <EmailAddressFilter stateSetter={setKeyword} />
-                {populateEmployeeTable(employeeList, pageNumber)}
+                <EmployeeTable employeeList={employeeList} pageNumber={pageNumber} />
                 <ReactPaginate
                     previousLabel={"Previous"}
                     nextLabel={"Next"}
@@ -58,10 +55,18 @@ export function EmployeeList(props) {
                     nextLinkClassName={"nextBttn"}
                     disabledClassName={"paginationDisabled"}
                     activeClassName={"paginationActive"}
-                /* forcePage={pageNumber}*/
+                    //forcePage={pageNumber                    
                 />
             </>
         );
+    }
+}
+
+const setPageNumberIfReturned = (location, setPageNumber) => {
+
+    if (location.state !== null && location.state !== undefined && location.state.page > 0) {
+        setPageNumber(location.state.page);
+        location.state.page = 0;
     }
 }
 
@@ -73,46 +78,6 @@ const filterByEmail = (employeeList, keyword) => {
         keyword = keyword.substr(0, keyword.indexOf('@'));
 
     return employeeList.filter(employee => employee.email.toLowerCase().substr(0, employee.email.indexOf('@')).includes(keyword.toLowerCase()));
-}
-
-const populateEmployeeTable = (employeeList, pageNumber) => {
-
-    return (
-        <table className='table table-striped' aria-labelledby="tabelLabel">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email Address</th>
-                    <th>More Info</th>
-                </tr>
-            </thead>
-            <tbody>
-                {
-                    employeeList.length > 0 ? (
-                        employeeList.map(employee =>
-                            <tr key={employee.id}>
-                                <td>{employee.id}</td>
-                                <td>{employee.first_name}</td>
-                                <td>{employee.last_name}</td>
-                                <td>{employee.email}</td>
-                                <td><Link to="/employee-detail" state={{ emp: employee, page: pageNumber }}>More Info</Link></td>
-                            </tr>
-
-                        )) : (
-                        <tr>
-                            <td>No employee found for search criteria</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    )
-                }
-            </tbody>
-        </table>
-    );
 }
 
 

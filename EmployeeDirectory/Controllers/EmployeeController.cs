@@ -25,7 +25,9 @@ namespace EmployeeDirectory.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error occurred while retrieving employee list for page number: {pageNumber}, page size: {pageSize}");
+                var errorMessage = $"Error occurred while retrieving employee list for page number: {pageNumber}, page size: {pageSize}";
+                _logger.LogError(ex, errorMessage);
+                return BadRequest(errorMessage);
             }
         }
     }

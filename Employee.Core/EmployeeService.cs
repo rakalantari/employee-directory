@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Employee.Core
 {
-    public class EmployeeService : ServiceBase, IHttpService
+    public class EmployeeService : ServiceBase
     {
         private const string _baseAddress = "https://reqres.in/";
         public EmployeeService(HttpClient httpClient) : base(httpClient)
